@@ -127,6 +127,10 @@
       </div>
     </div>
     <div class="form-row checkbox">
+      <input type="checkbox" id="node-input-battery">
+      <label for="node-input-battery">Battery</label>
+    </div>
+    <div class="form-row checkbox">
       <input type="checkbox" id="node-input-keys">
       <label for="node-input-keys">Keys</label>
     </div>
@@ -234,6 +238,7 @@
             gyroscopePeriod : { value : 1000 , validate : positiveNumber },
             luxometer : { value : true },
             luxometerPeriod : { value : 1000 , validate : positiveNumber },
+            battery : { value : true },
             keys: { value : true }
         },
         inputs:0,

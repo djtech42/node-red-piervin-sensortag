@@ -27,6 +27,7 @@ module.exports = function( RED ) {
 		this.magnetometer = n.magnetometer;
 		this.gyroscope = n.gyroscope;
 		this.luxometer = n.luxometer;
+		this.battery = n.battery;
 		this.keys = n.keys;
 
 		this.magnetometerPeriod = this.accelerometerPeriod = this.gyroscopePeriod = this.luxometerPeriod = this.DEFAULT_SENSOR_FREQ;
@@ -36,7 +37,7 @@ module.exports = function( RED ) {
 		if( n.gyroscopePeriod ) this.gyroscopePeriod = clamp( n.gyroscopePeriod , 10 , 2550 );
 		if( n.luxometerPeriod ) this.luxometerPeriod = clamp( n.luxometerPeriod , 10 , 2550 );
 
-		var tagOptionFields = [ "temperature" , "pressure" , "humidity" , "accelerometer" , "magnetometer" , "gyroscope" , "luxometer" , "keys" ,
+		var tagOptionFields = [ "temperature" , "pressure" , "humidity" , "accelerometer" , "magnetometer" , "gyroscope" , "luxometer" , "battery" , "keys" ,
 		                        "magnetometerPeriod" , "accelerometerPeriod" , "gyroscopePeriod" , "luxometerPeriod" ];
 
 		this.tagOptions = {};
@@ -76,7 +77,7 @@ module.exports = function( RED ) {
 		this.send( {
 			sensor: sensorName,
 			payload: {
-				id: this.macPrefix + uuid + "." + sensorID,
+				id: uuid,
 				tstamp: { $date : now },
 				json_data: data
 			}
@@ -275,6 +276,12 @@ module.exports = function( RED ) {
 			this.tag.on( "luxometerChange" , this.onLuxometerChange.bind( this ) );
 			this.tag.notifyLuxometer( this.errorHandler.bind( this ) );
 		}
+		
+		if( this.battery)
+		{
+			this.tag.on('batteryLevelChange', this.onBatteryLevelChange.bind( this ) );
+			this.tag.notifyBatteryLevel( this.errorHandler.bind( this ) );
+		}
 
 		if( this.keys )
 		{
@@ -352,10 +359,17 @@ module.exports = function( RED ) {
 			lux : lux
 		} );
 	};
+	
+	Tag.prototype.onBatteryLevelChange = function( battery )
+	{
+		this.parent.sendData( this.tag.uuid , "battery" , 7 , {
+			battery : battery
+		} );
+	};
 
 	Tag.prototype.onKeyChange = function( left , right )
 	{
-		this.parent.sendData( this.tag.uuid , "keys" , 7 , {
+		this.parent.sendData( this.tag.uuid , "keys" , 8 , {
 			key1 : left,
 			key2 : right
 		} );
