@@ -1,6 +1,6 @@
 {
   "name": "node-red-piervin-sensortag",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Node-RED node used to connect to Ti SensorTags via BLE and read their sensor data.",
   "main": "sensorTagNode.js",
   "scripts": {
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/ibm-iot/node-red-piervin-sensortag",
   "node-red": {
     "nodes": {
-      "sensorTag": "sensorTagNode.js"
+      "sensorTagWithBattery": "sensorTagNode.js"
     }
   },
   "dependencies": {
