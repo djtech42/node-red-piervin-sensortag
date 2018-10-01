@@ -2,8 +2,6 @@ function clamp( v , min , max ) {
 	return ( v < min ? min : ( v > max ? max : v ) );
 }
 
-var globalBattery = undefined;
-
 module.exports = function( RED ) {
 
 	var SensorTag = require( "sensortag" );
@@ -296,7 +294,7 @@ module.exports = function( RED ) {
 	{
 		if( this.disconnected ) return;
 		this.disconnected = true;
-		globalBattery = undefined;
+		this.batteryLevel = undefined;
 
 		if( this.attemptReconnect )
 		{
@@ -311,7 +309,7 @@ module.exports = function( RED ) {
 		this.parent.sendData( this.tag.uuid , "temperature" , 0 , {
 			object : object,
 			ambient : ambient,
-			battery : globalBattery
+			battery : this.batteryLevel
 		} );
 	};
 
@@ -321,7 +319,7 @@ module.exports = function( RED ) {
 			x : x,
 			y : y,
 			z : z,
-			battery : globalBattery
+			battery : this.batteryLevel
 		} );
 	};
 
@@ -330,7 +328,7 @@ module.exports = function( RED ) {
 		this.parent.sendData( this.tag.uuid , "humidity" , 2 , {
 			temperature : temperature,
 			humidity : humidity,
-			battery : globalBattery
+			battery : this.batteryLevel
 		} );
 	};
 
@@ -340,7 +338,7 @@ module.exports = function( RED ) {
 			x : x,
 			y : y,
 			z : z,
-			battery : globalBattery
+			battery : this.batteryLevel
 		} );
 	};
 
@@ -348,7 +346,7 @@ module.exports = function( RED ) {
 	{
 		this.parent.sendData( this.tag.uuid , "pressure" , 4 , {
 			pressure : pressure,
-			battery : globalBattery
+			battery : this.batteryLevel
 		} );
 	};
 
@@ -358,7 +356,7 @@ module.exports = function( RED ) {
 			x : x,
 			y : y,
 			z : z,
-			battery : globalBattery
+			battery : this.batteryLevel
 		} );
 	};
 
@@ -366,13 +364,13 @@ module.exports = function( RED ) {
 	{
 		this.parent.sendData( this.tag.uuid , "luxometer" , 6 , {
 			lux : lux,
-			battery : globalBattery
+			battery : this.batteryLevel
 		} );
 	};
 	
 	Tag.prototype.onBatteryLevelChange = function( battery )
 	{
-		globalBattery = battery;
+		this.batteryLevel = battery;
 	};
 
 	Tag.prototype.onKeyChange = function( left , right )
@@ -380,7 +378,7 @@ module.exports = function( RED ) {
 		this.parent.sendData( this.tag.uuid , "keys" , 8 , {
 			key1 : left,
 			key2 : right,
-			battery : globalBattery
+			battery : this.batteryLevel
 		} );
 	};
 
