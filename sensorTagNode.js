@@ -68,7 +68,7 @@ module.exports = function( RED ) {
 		} );
 	}
 
-	RED.nodes.registerType( "sensorTag" , SensorTagNode );
+	RED.nodes.registerType( "sensorTagWithBattery" , SensorTagNode );
 
 	SensorTagNode.prototype.sendData = function( uuid , sensorName , sensorID , data )
 	{
