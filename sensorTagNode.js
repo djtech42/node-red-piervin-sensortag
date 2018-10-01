@@ -2,6 +2,8 @@ function clamp( v , min , max ) {
 	return ( v < min ? min : ( v > max ? max : v ) );
 }
 
+var globalBattery = undefined;
+
 module.exports = function( RED ) {
 
 	var SensorTag = require( "sensortag" );
@@ -294,6 +296,7 @@ module.exports = function( RED ) {
 	{
 		if( this.disconnected ) return;
 		this.disconnected = true;
+		globalBattery = undefined;
 
 		if( this.attemptReconnect )
 		{
@@ -307,7 +310,8 @@ module.exports = function( RED ) {
 	{
 		this.parent.sendData( this.tag.uuid , "temperature" , 0 , {
 			object : object,
-			ambient : ambient
+			ambient : ambient,
+			battery : globalBattery
 		} );
 	};
 
@@ -316,7 +320,8 @@ module.exports = function( RED ) {
 		this.parent.sendData( this.tag.uuid , "accelerometer" , 1 , {
 			x : x,
 			y : y,
-			z : z
+			z : z,
+			battery : globalBattery
 		} );
 	};
 
@@ -324,7 +329,8 @@ module.exports = function( RED ) {
 	{
 		this.parent.sendData( this.tag.uuid , "humidity" , 2 , {
 			temperature : temperature,
-			humidity : humidity
+			humidity : humidity,
+			battery : globalBattery
 		} );
 	};
 
@@ -333,14 +339,16 @@ module.exports = function( RED ) {
 		this.parent.sendData( this.tag.uuid , "magnetometer" , 3 , {
 			x : x,
 			y : y,
-			z : z
+			z : z,
+			battery : globalBattery
 		} );
 	};
 
 	Tag.prototype.onPressureChange = function( pressure )
 	{
 		this.parent.sendData( this.tag.uuid , "pressure" , 4 , {
-			pressure : pressure
+			pressure : pressure,
+			battery : globalBattery
 		} );
 	};
 
@@ -349,29 +357,30 @@ module.exports = function( RED ) {
 		this.parent.sendData( this.tag.uuid , "gyroscope" , 5 , {
 			x : x,
 			y : y,
-			z : z
+			z : z,
+			battery : globalBattery
 		} );
 	};
 
 	Tag.prototype.onLuxometerChange = function( lux )
 	{
 		this.parent.sendData( this.tag.uuid , "luxometer" , 6 , {
-			lux : lux
+			lux : lux,
+			battery : globalBattery
 		} );
 	};
 	
 	Tag.prototype.onBatteryLevelChange = function( battery )
 	{
-		this.parent.sendData( this.tag.uuid , "battery" , 7 , {
-			battery : battery
-		} );
+		globalBattery = battery;
 	};
 
 	Tag.prototype.onKeyChange = function( left , right )
 	{
 		this.parent.sendData( this.tag.uuid , "keys" , 8 , {
 			key1 : left,
-			key2 : right
+			key2 : right,
+			battery : globalBattery
 		} );
 	};
 
