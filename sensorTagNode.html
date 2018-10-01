@@ -221,11 +221,11 @@
       } );
     }
 
-    RED.nodes.registerType('sensorTag',{
+    RED.nodes.registerType('sensorTagWithBattery',{
         category: 'GatewayKit',
         color:"GoldenRod",
         defaults: {
-            name: { value : "sensorTag" },
+            name: { value : "sensorTagWithBattery" },
             devices: { value : [] },
             temperature: { value : true },
             humidity: { value : true },
@@ -245,7 +245,7 @@
         outputs:1,
         icon: "bluetooth.png",
         label: function() {
-            return this.name || "sensorTag";
+            return this.name || "sensorTagWithBattery";
         },
         labelStyle: function() {
             return this.name ? "node_label_italic" : "";
