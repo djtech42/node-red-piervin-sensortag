@@ -281,6 +281,9 @@ module.exports = function( RED ) {
 		{
 			this.tag.on('batteryLevelChange', this.onBatteryLevelChange.bind( this ) );
 			this.tag.notifyBatteryLevel( this.errorHandler.bind( this ) );
+			this.tag.readBatteryLevel(function( battery ) {
+				this.batteryLevel = battery;
+			});
 		}
 
 		if( this.keys )
