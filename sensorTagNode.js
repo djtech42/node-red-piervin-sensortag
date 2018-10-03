@@ -174,7 +174,7 @@ module.exports = function( RED ) {
 	{
 		for( var i = 0; i < this.tags.length; i++ )
 			this.tags[i].attemptReconnect = false;
-			this.tags[i].send( {
+			this.send( {
 				payload: {
 					id: this.tags[i].uuid,
 					status: 'offline'
