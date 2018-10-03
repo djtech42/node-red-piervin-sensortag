@@ -172,6 +172,7 @@ function onDiscover( tag )
   {
     if( tagNodes[ id ].node.onNewTag( tag , tags[ tag.id ].used ) )
     {
+      tagNodes[ id ].node.onTagDiscover(tag.id );
       tags[ tag.id ].used = true;
     }
   }

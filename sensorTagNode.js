@@ -70,7 +70,7 @@ module.exports = function( RED ) {
 
 	RED.nodes.registerType( "sensorTagWithBattery" , SensorTagNode );
 
-	SensorTagNode.prototype.sendData = function( uuid , batteryLevel , sensorName , sensorID , data )
+	SensorTagNode.prototype.sendSensorData = function( uuid , batteryLevel , sensorName , sensorID , data )
 	{
 		var now = ( new Date() ).getTime();
 
@@ -85,14 +85,37 @@ module.exports = function( RED ) {
 		} );
 	};
 
-	SensorTagNode.prototype.onTagConnect = function( tag ) {
-		this.connectedTagCount++;
-		this.updateStatusConnected();
+	SensorTagNode.prototype.onTagDiscover = function( uuid ) {
+		this.send( {
+			payload: {
+				id: uuid,
+				status: 'discovered'
+			}
+		} );
 	};
 
-	SensorTagNode.prototype.onTagDisconnect = function( tag ) {
+	SensorTagNode.prototype.onTagConnect = function( uuid ) {
+		this.connectedTagCount++;
+		this.updateStatusConnected();
+
+		this.send( {
+			payload: {
+				id: uuid,
+				status: 'online'
+			}
+		} );
+	};
+
+	SensorTagNode.prototype.onTagDisconnect = function( uuid ) {
 		this.connectedTagCount--;
 		this.updateStatusConnected();
+
+		this.send( {
+			payload: {
+				id: uuid,
+				status: 'offline'
+			}
+		} );
 	};
 
 	SensorTagNode.prototype.updateStatus = function( color , message ) {
@@ -151,6 +174,12 @@ module.exports = function( RED ) {
 	{
 		for( var i = 0; i < this.tags.length; i++ )
 			this.tags[i].attemptReconnect = false;
+			this.tags[i].send( {
+				payload: {
+					id: this.tags[i].uuid,
+					status: 'offline'
+				}
+			} );
 
 		this.tags = [];
 		this.connectedTagCount = 0;
@@ -209,7 +238,7 @@ module.exports = function( RED ) {
 
 		this.disconnected = false;
 		this.tag.on( "disconnect" , this.onDisconnect.bind( this ) );
-		this.parent.onTagConnect( this );
+		this.parent.onTagConnect( this.tag.uuid);
 
 		this.log( "Connected." );
 		this.tag.discoverServicesAndCharacteristics( this.discoverServCharCallback.bind( this ) );
@@ -245,6 +274,13 @@ module.exports = function( RED ) {
 			this.tag.enableHumidity( this.errorHandler.bind( this ) );
 			this.tag.on( "humidityChange" , this.onHumidityChange.bind( this ) );
 			this.tag.notifyHumidity( this.errorHandler.bind( this ) );
+
+			this.parent.send( {
+				payload: {
+					id: this.tag.uuid,
+					status: 'active'
+				}
+			} );
 		}
 
 		if( this.magnetometer )
@@ -305,7 +341,7 @@ module.exports = function( RED ) {
 
 		if( this.attemptReconnect )
 		{
-			this.parent.onTagDisconnect( this );
+			this.parent.onTagDisconnect( this.tag.uuid );
 			this.log( "Attempting to reconnect in 5s..." );
 			setTimeout( this.connect.bind( this ) , 5000 );
 		}
@@ -313,7 +349,7 @@ module.exports = function( RED ) {
 
 	Tag.prototype.onIrTemperatureChange = function( object , ambient )
 	{
-		this.parent.sendData( this.tag.uuid , this.batteryLevel, "temperature" , 0 , {
+		this.parent.sendSensorData( this.tag.uuid , this.batteryLevel, "temperature" , 0 , {
 			object : object,
 			ambient : ambient
 		} );
@@ -321,7 +357,7 @@ module.exports = function( RED ) {
 
 	Tag.prototype.onAccelerometerChange = function( x , y , z )
 	{
-		this.parent.sendData( this.tag.uuid , this.batteryLevel, "accelerometer" , 1 , {
+		this.parent.sendSensorData( this.tag.uuid , this.batteryLevel, "accelerometer" , 1 , {
 			x : x,
 			y : y,
 			z : z
@@ -330,7 +366,7 @@ module.exports = function( RED ) {
 
 	Tag.prototype.onHumidityChange = function( temperature , humidity )
 	{
-		this.parent.sendData( this.tag.uuid , this.batteryLevel, "humidity" , 2 , {
+		this.parent.sendSensorData( this.tag.uuid , this.batteryLevel, "humidity" , 2 , {
 			temperature : temperature,
 			humidity : humidity
 		} );
@@ -338,7 +374,7 @@ module.exports = function( RED ) {
 
 	Tag.prototype.onMagnetometerChange = function( x , y , z )
 	{
-		this.parent.sendData( this.tag.uuid , this.batteryLevel, "magnetometer" , 3 , {
+		this.parent.sendSensorData( this.tag.uuid , this.batteryLevel, "magnetometer" , 3 , {
 			x : x,
 			y : y,
 			z : z
@@ -347,14 +383,14 @@ module.exports = function( RED ) {
 
 	Tag.prototype.onPressureChange = function( pressure )
 	{
-		this.parent.sendData( this.tag.uuid , this.batteryLevel, "pressure" , 4 , {
+		this.parent.sendSensorData( this.tag.uuid , this.batteryLevel, "pressure" , 4 , {
 			pressure : pressure
 		} );
 	};
 
 	Tag.prototype.onGyroscopeChange = function( x , y , z )
 	{
-		this.parent.sendData( this.tag.uuid , this.batteryLevel, "gyroscope" , 5 , {
+		this.parent.sendSensorData( this.tag.uuid , this.batteryLevel, "gyroscope" , 5 , {
 			x : x,
 			y : y,
 			z : z
@@ -363,7 +399,7 @@ module.exports = function( RED ) {
 
 	Tag.prototype.onLuxometerChange = function( lux )
 	{
-		this.parent.sendData( this.tag.uuid , this.batteryLevel, "luxometer" , 6 , {
+		this.parent.sendSensorData( this.tag.uuid , this.batteryLevel, "luxometer" , 6 , {
 			lux : lux
 		} );
 	};
@@ -375,7 +411,7 @@ module.exports = function( RED ) {
 
 	Tag.prototype.onKeyChange = function( left , right )
 	{
-		this.parent.sendData( this.tag.uuid , this.batteryLevel, "keys" , 8 , {
+		this.parent.sendSensorData( this.tag.uuid , this.batteryLevel, "keys" , 8 , {
 			key1 : left,
 			key2 : right
 		} );
