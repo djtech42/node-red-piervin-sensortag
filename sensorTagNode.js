@@ -172,11 +172,13 @@ module.exports = function( RED ) {
 
 	SensorTagNode.prototype.prepareDisconnectAll = function()
 	{
+		var tag;
 		for( var i = 0; i < this.tags.length; i++ )
-			this.tags[i].attemptReconnect = false;
+			tag = this.tags[i];
+			tag.attemptReconnect = false;
 			this.send( {
 				payload: {
-					id: this.tags[i].uuid,
+					id: tag.uuid,
 					status: 'offline'
 				}
 			} );
