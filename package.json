@@ -28,6 +28,7 @@
     }
   },
   "dependencies": {
-    "getmac": "^1.0.7"
+    "getmac": "^1.0.7",
+    "sensortag": "file:node-sensortag"
   }
 }
