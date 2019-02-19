@@ -431,7 +431,7 @@ module.exports = function( RED ) {
 
 	RED.httpNode.get( "/sensortag/safe" , function( request , response ) {
 		Manager.setSafe();
-		response.send( 200 );
+		response.status(200).send( "successful" );
 	} );
 
 	RED.httpNode.get( "/sensortag/isscanning" , function( request , response ) {
@@ -441,7 +441,7 @@ module.exports = function( RED ) {
 
 	RED.httpNode.get( "/sensortag/restart" , function( request , response ) {
 		Manager.restartScanning();
-		response.send( 200 );
+		response.status(200).send( "successful" );
 	} );
 
 	RED.httpNode.get( "/sensortag/tags" , function( request , response ) {
